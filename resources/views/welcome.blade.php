@@ -7,12 +7,12 @@
     <style>
         :root {
             --bg: #f7f7f5; --panel: #ffffff; --text: #1c1c1a; --muted: #77776f; --line: #e4e4de;
-            --head: #f0f0ec; --accent: #0f766e; --hover: #fafaf8;
+            --head: #f0f0ec; --accent: #0f766e; --hover: #fafaf8; --btn-line: #c9c9c1;
         }
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg: #0f0f0e; --panel: #171716; --text: #ecece8; --muted: #8e8e86; --line: #2b2b28;
-                --head: #1d1d1b; --accent: #2dd4bf; --hover: #1b1b19;
+                --head: #1d1d1b; --accent: #2dd4bf; --hover: #1b1b19; --btn-line: #3a3a36;
             }
         }
         * { box-sizing: border-box; }
@@ -55,14 +55,14 @@
 
         .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--line); background: var(--head); font-size: 13px; color: var(--muted); }
         .pager .btns { display: flex; align-items: center; gap: 8px; }
-        .pager button { font: inherit; line-height: 1; height: 32px; min-width: 32px; padding: 0 12px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+        .pager button { font: inherit; line-height: 1; height: 32px; min-width: 32px; padding: 0 12px; color: var(--text); background: var(--panel); border: 1px solid var(--btn-line); border-radius: 6px; cursor: pointer; }
         .pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .pager button:disabled { opacity: .4; cursor: default; }
         .pager .left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .pager select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; margin-left: 6px; }
         .pager .btns { flex-wrap: wrap; gap: 4px; }
-        .pager button.num { padding: 0 8px; }
-        .pager button.num.on { background: var(--accent); border-color: var(--accent); color: var(--bg); cursor: default; }
+        .pager button.num { width: 32px; padding: 0; }
+        .pager button.num.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--panel)); cursor: default; }
         .pager .gap { padding: 0 4px; }
 
         @media (max-width: 680px) {
