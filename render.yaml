@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ip-visit-logger
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false          # run: php artisan key:generate --show
+      - key: LOGS_KEY
+        sync: false          # long random string; protects /logs and the visitor table
+      - key: APP_URL
+        sync: false          # your https://<name>.onrender.com URL
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: VISITS_CHANNELS
+        value: visits_file,visits_stderr
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
