@@ -46,12 +46,21 @@ class VisitLog
         $visits = self::all();
         $canSeeAll = self::canSeeAll($request);
 
+        $perPage = 15;
+        $total = count($visits);
+        $pages = max(1, (int) ceil($total / $perPage));
+        $page = min($pages, max(1, (int) $request->query('page', 1)));
+
         return [
             'myIp' => $request->ip(),
             'canSeeAll' => $canSeeAll,
-            'total' => count($visits),
+            'total' => $total,
             'unique' => count(array_unique(array_column($visits, 'ip'))),
-            'recent' => $canSeeAll ? array_slice(array_reverse($visits), 0, 20) : [],
+            'page' => $page,
+            'pages' => $pages,
+            'perPage' => $perPage,
+            // Newest first, one page at a time.
+            'recent' => $canSeeAll ? array_slice(array_reverse($visits), ($page - 1) * $perPage, $perPage) : [],
         ];
     }
 }
