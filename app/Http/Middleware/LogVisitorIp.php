@@ -16,7 +16,7 @@ class LogVisitorIp
             Log::channel('visits')->info('visit', [
                 'ip' => $request->ip(),
                 'path' => '/'.ltrim($request->path(), '/'),
-                'url' => $request->fullUrlWithoutQuery('key'), // never log the secret key
+                'url' => $request->fullUrlWithoutQuery(['key', 'page', 'per_page']), // never log the secret key or the table's own paging params
                 'referer' => $request->headers->get('referer'),
                 'user_agent' => $request->userAgent(),
             ]);
