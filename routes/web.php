@@ -19,7 +19,8 @@ Route::get('/', function (Request $request) {
 
     return view('welcome', [
         'myIp' => $request->ip(),
-        'canSeeAll' => (string) config('app.logs_key') !== '' && hash_equals((string) config('app.logs_key'), (string) $request->query('key')),
+        'canSeeAll' => config('app.logs_public')
+            || ((string) config('app.logs_key') !== '' && hash_equals((string) config('app.logs_key'), (string) $request->query('key'))),
         'total' => count($visits),
         'unique' => count(array_unique(array_column($visits, 'ip'))),
         'recent' => array_slice(array_reverse($visits), 0, 20),
@@ -29,7 +30,10 @@ Route::get('/', function (Request $request) {
 // View the visitor log: /logs?key=<LOGS_KEY from .env>
 Route::get('/logs', function (Request $request) {
     $key = (string) config('app.logs_key');
-    abort_unless($key !== '' && hash_equals($key, (string) $request->query('key')), 403);
+    abort_unless(
+        config('app.logs_public') || ($key !== '' && hash_equals($key, (string) $request->query('key'))),
+        403
+    );
 
     $file = storage_path('logs/visits.log');
     $contents = File::exists($file) ? File::get($file) : '(no visits logged yet)';

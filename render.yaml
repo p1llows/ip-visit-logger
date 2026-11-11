@@ -13,6 +13,8 @@ services:
         sync: false          # run: php artisan key:generate --show
       - key: LOGS_KEY
         sync: false          # long random string; protects /logs and the visitor table
+      - key: LOGS_PUBLIC
+        value: "true"        # TEMPORARY: no key needed to view logs. Set to false to lock again.
       - key: APP_URL
         sync: false          # your https://<name>.onrender.com URL
       - key: LOG_CHANNEL

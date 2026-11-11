@@ -15,6 +15,9 @@ return [
 
     'logs_key' => env('LOGS_KEY'),
 
+    // When true, the visitor table and /logs are open to everyone (no key needed).
+    'logs_public' => (bool) env('LOGS_PUBLIC', false),
+
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
