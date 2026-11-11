@@ -31,10 +31,10 @@
         <p>The visitor list is private. Add <code>?key=...</code> to the URL to view it.</p>
     @elseif (count($recent))
         <table>
-            <thead><tr><th>Time (UTC)</th><th>IP</th><th>Visited link</th><th>Came from</th></tr></thead>
+            <thead><tr><th>Time (UTC)</th><th>Type</th><th>IP</th><th>Visited link</th><th>Came from</th></tr></thead>
             <tbody id="rows">
             @foreach ($recent as $v)
-                <tr><td>{{ $v['time'] }}</td><td>{{ $v['ip'] }}</td><td>{{ $v['url'] ?? $v['path'] }}</td><td>{{ $v['referer'] ?: '-' }}</td></tr>
+                <tr><td>{{ $v['time'] }}</td><td>{{ $v['type'] === 'browse' ? 'Browsed' : 'Visit' }}</td><td>{{ $v['ip'] }}</td><td>{{ $v['url'] ?? $v['path'] }}</td><td>{{ $v['referer'] ?: '-' }}</td></tr>
             @endforeach
             </tbody>
         </table>
@@ -54,7 +54,7 @@
             const rows = document.getElementById('rows');
             if (rows && d.canSeeAll) {
                 rows.innerHTML = d.recent.map(v =>
-                    `<tr><td>${esc(v.time)}</td><td>${esc(v.ip)}</td><td>${esc(v.url ?? v.path)}</td><td>${esc(v.referer || '-')}</td></tr>`
+                    `<tr><td>${esc(v.time)}</td><td>${v.type === 'browse' ? 'Browsed' : 'Visit'}</td><td>${esc(v.ip)}</td><td>${esc(v.url ?? v.path)}</td><td>${esc(v.referer || '-')}</td></tr>`
                 ).join('');
             }
         } catch (e) {}

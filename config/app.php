@@ -15,6 +15,9 @@ return [
 
     'logs_key' => env('LOGS_KEY'),
 
+    // Secret the browser extension sends to report the sites you browse.
+    'browse_key' => env('BROWSE_KEY'),
+
     // When true, the visitor table and /logs are open to everyone (no key needed).
     'logs_public' => (bool) env('LOGS_PUBLIC', false),
 

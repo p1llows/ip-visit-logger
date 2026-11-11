@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Browse Reporter options</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input[type=text], input[type=password] { width: 100%; padding: .5rem; box-sizing: border-box; }
+    button { margin-top: 1.25rem; padding: .5rem 1rem; }
+    #msg { margin-left: .75rem; color: green; }
+  </style>
+</head>
+<body>
+  <h1>Browse Reporter</h1>
+  <label>App URL <input id="appUrl" type="text" placeholder="https://ip-visit-logger.onrender.com"></label>
+  <label>Browse key <input id="browseKey" type="password"></label>
+  <label><input id="paused" type="checkbox"> Pause reporting</label>
+  <button id="save">Save</button><span id="msg"></span>
+  <script src="options.js"></script>
+</body>
+</html>
