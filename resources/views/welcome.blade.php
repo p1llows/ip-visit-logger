@@ -55,7 +55,7 @@
 
         .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--line); background: var(--head); font-size: 13px; color: var(--muted); }
         .pager .btns { display: flex; align-items: center; gap: 8px; }
-        .pager button { font: inherit; line-height: 1; height: 32px; min-width: 32px; padding: 0 12px; color: var(--text); background: var(--panel); border: 1px solid var(--btn-line); border-radius: 6px; cursor: pointer; }
+        .pager button { font: inherit; line-height: 1; height: 32px; min-width: 32px; padding: 0 12px; white-space: nowrap; color: var(--text); background: var(--panel); border: 1px solid var(--btn-line); border-radius: 6px; cursor: pointer; }
         .pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .pager button:disabled { opacity: .4; cursor: default; }
         .pager .left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -65,14 +65,44 @@
         .pager button.num.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--panel)); cursor: default; }
         .pager .gap { padding: 0 4px; }
 
+        @media (max-width: 860px) {
+            th, td { padding-left: 14px; padding-right: 14px; }
+            td.url { max-width: 220px; }
+            .panel-head, .pager { padding-left: 14px; padding-right: 14px; }
+        }
+
+        /* Phones: each visit becomes a small stacked entry instead of a squeezed table row. */
         @media (max-width: 680px) {
+            .wrap { padding: 20px 12px 40px; }
+            h1 { font-size: 22px; }
+            .top { margin-bottom: 14px; }
             .stats { grid-template-columns: 1fr 1fr; }
+            .stat { padding: 12px 14px; }
             .stat:first-child { grid-column: 1 / -1; border-bottom: 1px solid var(--line); }
             .stat:nth-child(2) { border-left: 0; }
-            .hide-sm { display: none; }
-            th, td { padding-left: 14px; padding-right: 14px; }
-            td.url { max-width: 170px; }
+            .value { font-size: 26px; }
+            .value.ip { font-size: 20px; }
+
+            .scroll { overflow: visible; }
+            table, tbody { display: block; }
+            thead { display: none; }
+            tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+            tbody tr:last-child { border-bottom: 0; }
+            td { display: block; padding: 0; border: 0; }
+            td.time { grid-column: 1; }
+            td.ip { grid-column: 2; grid-row: 1; text-align: right; }
+            td.url { grid-column: 1 / -1; max-width: none; white-space: normal; overflow-wrap: anywhere; }
+            td.ref::before { content: "from "; color: var(--muted); }
+            td.ref.none { display: none; }
+
+            .pager { flex-direction: column; align-items: stretch; }
+            .pager .left { justify-content: space-between; }
+            .pager .btns { justify-content: center; gap: 3px; flex-wrap: nowrap; }
+            .pager button { padding: 0 9px; height: 30px; }
+            .pager button.num { width: 30px; min-width: 30px; padding: 0; }
+            .pager .gap { padding: 0 2px; }
         }
+        @media (max-width: 430px) { .pager .lbl { display: none; } }
     </style>
 </head>
 <body>
@@ -96,7 +126,7 @@
         @else
             <div class="scroll">
                 <table>
-                    <thead><tr><th>Time</th><th>IP</th><th>Link visited</th><th class="hide-sm">Came from</th></tr></thead>
+                    <thead><tr><th>Time</th><th>IP</th><th>Link visited</th><th>Came from</th></tr></thead>
                     <tbody id="rows"></tbody>
                 </table>
             </div>
@@ -160,7 +190,7 @@
                 <td class="time"><span data-t="${when.getTime()}">${ago(when)}</span><small>${esc(when.toLocaleString())}</small></td>
                 <td class="ip mono">${esc(v.ip)}</td>
                 <td class="url mono" title="${esc(link)}">${prettyUrl(link)}</td>
-                <td class="url mono hide-sm" title="${esc(v.referer || '')}">${v.referer ? prettyUrl(v.referer) : '<span class="muted">-</span>'}</td>
+                <td class="url ref mono${v.referer ? '' : ' none'}" title="${esc(v.referer || '')}">${v.referer ? prettyUrl(v.referer) : '<span class="muted">-</span>'}</td>
             </tr>`;
         }).join('');
     }
@@ -190,12 +220,12 @@
         document.getElementById('range').textContent = total ? `Showing ${from}-${to} of ${total}` : '';
         document.getElementById('perPage').value = String(perPage);
         document.getElementById('nav').innerHTML =
-            `<button type="button" data-p="${page - 1}" ${page <= 1 ? 'disabled' : ''}>&larr; Prev</button>` +
+            `<button type="button" data-p="${page - 1}" ${page <= 1 ? 'disabled' : ''}>&larr;<span class="lbl"> Prev</span></button>` +
             pageList().map(p => p === '…'
                 ? '<span class="gap muted">…</span>'
                 : `<button type="button" class="num ${p === page ? 'on' : ''}" data-p="${p}" ${p === page ? 'aria-current="page"' : ''}>${p}</button>`
             ).join('') +
-            `<button type="button" data-p="${page + 1}" ${page >= pages ? 'disabled' : ''}>Next &rarr;</button>`;
+            `<button type="button" data-p="${page + 1}" ${page >= pages ? 'disabled' : ''}><span class="lbl">Next </span>&rarr;</button>`;
         document.getElementById('nav').hidden = pages <= 1;
     }
 
