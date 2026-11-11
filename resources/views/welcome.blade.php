@@ -58,6 +58,12 @@
         .pager button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
         .pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .pager button:disabled { opacity: .4; cursor: default; }
+        .pager .left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .pager select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; margin-left: 6px; }
+        .pager .btns { flex-wrap: wrap; gap: 4px; }
+        .pager button.num { min-width: 32px; padding: 5px 8px; }
+        .pager button.num.on { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; cursor: default; }
+        .pager .gap { padding: 0 4px; }
 
         @media (max-width: 680px) {
             .stats { grid-template-columns: 1fr 1fr; }
@@ -96,12 +102,17 @@
             </div>
             <div class="note" id="empty" hidden>No visits yet. Open the site from another tab or device and it will show up here.</div>
             <div class="pager" id="pager">
-                <span id="range"></span>
-                <span class="btns">
-                    <button type="button" id="prev">&larr; Newer</button>
-                    <span id="pageOf"></span>
-                    <button type="button" id="next">Older &rarr;</button>
-                </span>
+                <div class="left">
+                    <label>Rows per page
+                        <select id="perPage">
+                            @foreach ([10, 25, 50, 100] as $n)
+                                <option value="{{ $n }}" @selected($perPage === $n)>{{ $n }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <span id="range"></span>
+                </div>
+                <span class="btns" id="nav"></span>
             </div>
         @endif
     </div>
@@ -112,7 +123,7 @@
     const initial = @json($recent);
     let page = @json($page);
     let pages = @json($pages);
-    const perPage = @json($perPage);
+    let perPage = @json($perPage);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const safeHref = u => /^https?:\/\//i.test(u || '') ? u : null;
 
@@ -162,15 +173,30 @@
         document.getElementById('updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
     }
 
+    // 1 2 3 … 9 10 style page list: first, last, and a window around the current page.
+    function pageList() {
+        const out = [];
+        for (let i = 1; i <= pages; i++) {
+            if (i === 1 || i === pages || Math.abs(i - page) <= 1) out.push(i);
+            else if (out[out.length - 1] !== '…') out.push('…');
+        }
+        return out;
+    }
+
     function renderPager(total) {
         if (!document.getElementById('pager')) return;
         const from = total === 0 ? 0 : (page - 1) * perPage + 1;
         const to = Math.min(total, page * perPage);
         document.getElementById('range').textContent = total ? `Showing ${from}-${to} of ${total}` : '';
-        document.getElementById('pageOf').textContent = `Page ${page} of ${pages}`;
-        document.getElementById('prev').disabled = page <= 1;
-        document.getElementById('next').disabled = page >= pages;
-        document.getElementById('pager').hidden = pages <= 1;
+        document.getElementById('perPage').value = String(perPage);
+        document.getElementById('nav').innerHTML =
+            `<button type="button" data-p="${page - 1}" ${page <= 1 ? 'disabled' : ''}>&larr; Prev</button>` +
+            pageList().map(p => p === '…'
+                ? '<span class="gap muted">…</span>'
+                : `<button type="button" class="num ${p === page ? 'on' : ''}" data-p="${p}" ${p === page ? 'aria-current="page"' : ''}>${p}</button>`
+            ).join('') +
+            `<button type="button" data-p="${page + 1}" ${page >= pages ? 'disabled' : ''}>Next &rarr;</button>`;
+        document.getElementById('nav').hidden = pages <= 1;
     }
 
     async function refresh() {
@@ -178,6 +204,7 @@
             // Keep ?key=... and send the page we are looking at.
             const params = new URLSearchParams(location.search);
             params.set('page', page);
+            params.set('per_page', perPage);
             const r = await fetch('/visits.json?' + params, {cache: 'no-store'});
             if (!r.ok) return;
             const d = await r.json();
@@ -185,6 +212,7 @@
             document.getElementById('unique').textContent = d.unique;
             page = d.page;
             pages = d.pages;
+            perPage = d.perPage;
             if (canSeeAll && d.canSeeAll) {
                 render(d.recent);
                 renderPager(d.total);
@@ -198,6 +226,7 @@
         // Remember the page in the address bar so a reload stays on it.
         const params = new URLSearchParams(location.search);
         page === 1 ? params.delete('page') : params.set('page', page);
+        perPage === 10 ? params.delete('per_page') : params.set('per_page', perPage);
         const qs = params.toString();
         history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
         refresh();
@@ -206,8 +235,15 @@
     if (canSeeAll) {
         render(initial);
         renderPager(@json($total));
-        document.getElementById('prev').addEventListener('click', () => go(page - 1));
-        document.getElementById('next').addEventListener('click', () => go(page + 1));
+        document.getElementById('nav').addEventListener('click', e => {
+            const b = e.target.closest('button[data-p]');
+            if (b && !b.disabled) go(+b.dataset.p);
+        });
+        document.getElementById('perPage').addEventListener('change', e => {
+            perPage = +e.target.value;
+            page = 1; // sizes change, so the old page number no longer lines up
+            go(1);
+        });
     }
     stamp();
     setInterval(refresh, 5000);

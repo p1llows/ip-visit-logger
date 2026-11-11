@@ -46,7 +46,8 @@ class VisitLog
         $visits = self::all();
         $canSeeAll = self::canSeeAll($request);
 
-        $perPage = 15;
+        $perPage = (int) $request->query('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
         $total = count($visits);
         $pages = max(1, (int) ceil($total / $perPage));
         $page = min($pages, max(1, (int) $request->query('page', 1)));
