@@ -12,7 +12,7 @@ class LogVisitorIp
     public function handle(Request $request, Closure $next): Response
     {
         // Don't log people viewing the log itself.
-        if (! $request->is('logs', 'up', 'favicon.ico')) {
+        if (! $request->is('logs', 'up', 'favicon.ico', 'visits.json')) {
             Log::channel('visits')->info('visit', [
                 'ip' => $request->ip(),
                 'path' => '/'.ltrim($request->path(), '/'),

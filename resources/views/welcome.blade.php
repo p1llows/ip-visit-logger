@@ -21,9 +21,9 @@
 <main>
     <h1>IP Visit Logger</h1>
     <div class="cards">
-        <div class="card"><small>Your IP</small><strong>{{ $myIp }}</strong></div>
-        <div class="card"><small>Total visits</small><strong>{{ $total }}</strong></div>
-        <div class="card"><small>Unique IPs</small><strong>{{ $unique }}</strong></div>
+        <div class="card"><small>Your IP</small><strong id="myIp">{{ $myIp }}</strong></div>
+        <div class="card"><small>Total visits</small><strong id="total">{{ $total }}</strong></div>
+        <div class="card"><small>Unique IPs</small><strong id="unique">{{ $unique }}</strong></div>
     </div>
 
     <h2>Recent visits</h2>
@@ -32,7 +32,7 @@
     @elseif (count($recent))
         <table>
             <thead><tr><th>Time (UTC)</th><th>IP</th><th>Visited link</th><th>Came from</th></tr></thead>
-            <tbody>
+            <tbody id="rows">
             @foreach ($recent as $v)
                 <tr><td>{{ $v['time'] }}</td><td>{{ $v['ip'] }}</td><td>{{ $v['url'] ?? $v['path'] }}</td><td>{{ $v['referer'] ?: '-' }}</td></tr>
             @endforeach
@@ -42,5 +42,24 @@
         <p>No visits logged yet.</p>
     @endif
 </main>
+<script>
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    async function refresh() {
+        try {
+            const r = await fetch('/visits.json' + location.search, {cache: 'no-store'});
+            if (!r.ok) return;
+            const d = await r.json();
+            document.getElementById('total').textContent = d.total;
+            document.getElementById('unique').textContent = d.unique;
+            const rows = document.getElementById('rows');
+            if (rows && d.canSeeAll) {
+                rows.innerHTML = d.recent.map(v =>
+                    `<tr><td>${esc(v.time)}</td><td>${esc(v.ip)}</td><td>${esc(v.url ?? v.path)}</td><td>${esc(v.referer || '-')}</td></tr>`
+                ).join('');
+            }
+        } catch (e) {}
+    }
+    setInterval(refresh, 5000);
+</script>
 </body>
 </html>
