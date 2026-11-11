@@ -55,14 +55,14 @@
 
         .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--line); background: var(--head); font-size: 13px; color: var(--muted); }
         .pager .btns { display: flex; align-items: center; gap: 8px; }
-        .pager button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+        .pager button { font: inherit; line-height: 1; height: 32px; min-width: 32px; padding: 0 12px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
         .pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .pager button:disabled { opacity: .4; cursor: default; }
         .pager .left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .pager select { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; margin-left: 6px; }
         .pager .btns { flex-wrap: wrap; gap: 4px; }
-        .pager button.num { min-width: 32px; padding: 5px 8px; }
-        .pager button.num.on { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; cursor: default; }
+        .pager button.num { padding: 0 8px; }
+        .pager button.num.on { background: var(--accent); border-color: var(--accent); color: var(--bg); cursor: default; }
         .pager .gap { padding: 0 4px; }
 
         @media (max-width: 680px) {
